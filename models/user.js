@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    AadharcardNumber:{
+    AadharCardNumber:{
         required: true,
         unique: true,
         type: Number
@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type: String,
-        enum:['Voter','admin'],
-        default: 'voter'
+        enum:['Voter','Admin'],
+        default: 'Voter'
     },
 
     isVoted:{
