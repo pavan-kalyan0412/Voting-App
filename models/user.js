@@ -26,9 +26,9 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     AadharCardNumber:{
-        unique: true,
+        type: String,
         required: true,
-        type: String
+        unique: true
     },
     password:{
         required: true,
@@ -53,7 +53,6 @@ userSchema.pre('save', async function(next){
     }
     next();
 });
-
 
 
 const User = mongoose.model('User', userSchema);

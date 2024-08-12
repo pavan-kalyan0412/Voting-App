@@ -5,11 +5,24 @@ const User = require('./../models/user');
 router.post('/signup', async (req, res) => {
     try {
         const data = req.body; // Assuming the request body contains the user data
-
+        console.log(data.AadharCardNumber);
         // Check if all required fields are present
         if (!data.AadharCardNumber) {
             return res.status(400).json({ error: 'Aadhar Card Number is required' });
         }
+
+
+        //Validate the Aadhar Card Number must have exactly 12 digits
+        if (!/^\d{12}$/.test(data.AadharCardNumber)) {
+            return res.status(400).json({ error: 'Aadhar Card Number must be exactly 12 digits' });
+        }
+
+        // Check if a user with the same Aadhar Card Number already exists
+        const existingUser = await User.findOne({ AadharCardNumber: data.AadharCardNumber });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with the same Aadhar Card Number already exists' });
+        }
+
 
         // Check if there is already an admin user
         const adminUser = await User.findOne({ role: 'Admin' });
@@ -23,16 +36,7 @@ router.post('/signup', async (req, res) => {
             return res.status(400).json({ error: 'Email already exists' });
         }
 
-        // Validate the Aadhar Card Number must have exactly 12 digits
-        if (!/^\d{12}$/.test(data.AadharCardNumber)) {
-            return res.status(400).json({ error: 'Aadhar Card Number must be exactly 12 digits' });
-        }
-
-        // Check if a user with the same Aadhar Card Number already exists
-        const existingUser = await User.findOne({ AadharCardNumber: data.AadharCardNumber });
-        if (existingUser) {
-            return res.status(400).json({ error: 'User with the same Aadhar Card Number already exists' });
-        }
+      
 
         const newUser = new User(data);
         const response = await newUser.save();
