@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt')
 
 
 //Define the person schema
@@ -44,6 +45,16 @@ const userSchema = new mongoose.Schema({
         default: false
     }
 });
+
+//password hashing middleware
+userSchema.pre('save', async function(next){
+    if(this.isModified('password')){
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
