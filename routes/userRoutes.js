@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('./../models/user');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 router.post('/signup', async (req, res) => {
     try {
@@ -47,5 +50,46 @@ router.post('/signup', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+router.post('/login', async (req,res) =>{
+    try{
+        const {AadharCardNumber, password} = req.body;
+
+        //validate the input
+        if(!AadharCardNumber || !password) {
+            return res.status(400).json({error:' Aadhar Card Number and password are required'})
+        }
+
+        //Find the user by Aadhar card Number
+        const user = await User.findOne({ AadharCardNumber });
+        if(!user){
+            return res.status(400).json({error: 'invalid Aadhar Card Number or password'})
+        }
+
+        //compare the password with the hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.status(400).json({error:'Invalid Aadhar Card Number or password '})
+        }
+
+
+        //generate a jwt token
+        const token = jwt.sign(
+            {userId: user.id, role: user.role},
+                process.env.JWT_SECRET,
+                {expiresIn: '1h'}
+        );
+
+        //if Login is successfull, return a success message
+        res.status(200).json({ message:'Login successful', token});
+
+
+    } catch(err){
+        console.log(err);
+        res.status(500).json({error: 'invalid server error'})
+    }
+})
+
+
 
 module.exports = router;
