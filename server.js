@@ -13,6 +13,9 @@ const userRoutes = require('./routes/userRoutes');
 
 app.use('/user', userRoutes);
 
+// //Add the login route
+// const loginRoutes = require()
+app.use('/login', userRoutes)
 
 app.listen(PORT, ()=>{
     console.log(`App started listening at PORT ${PORT}`)
