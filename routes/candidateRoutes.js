@@ -133,5 +133,17 @@ router.get('/candidates', async (req, res) => {
     }
 });
 
+router.get('/candidates-list',async(req,res)=>{
+    try {
+        //find all candidates and project only name and party fields
+        const candidates = await Candidate.find({}, 'name party');
+
+        res.status(200).json(candidates);
+    } catch (error) {
+        console.error(err);
+        rs.status(500).json({error:'internal server error'});
+        
+    }
+})
 
 module.exports = router;
