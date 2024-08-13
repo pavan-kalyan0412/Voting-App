@@ -78,5 +78,43 @@ router.delete('/delete-candidate/:id', authenticateToken, isAdmin, async (req, r
     }
 });
 
+// Route to vote for a candidate
+router.post('/vote/:candidateId', authenticateToken, async (req, res) => {
+    try {
+        const { candidateId } = req.params;
+        const userId = req.user.userId;
+
+        // Check if the user has already voted
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (user.isVoted) {
+            return res.status(400).json({ error: 'User has already voted' });
+        }
+
+        // Find the candidate and update vote count
+        const candidate = await Candidate.findById(candidateId);
+        if (!candidate) {
+            return res.status(404).json({ error: 'Candidate not found' });
+        }
+
+        // Update candidate's vote count and add the vote
+        candidate.voteCount += 1;
+        candidate.votes.push({ user: userId });
+
+        // Save the candidate
+        const updatedCandidate = await candidate.save();
+
+        // Update user's voting status
+        user.isVoted = true;
+        await user.save();
+
+        res.status(200).json({ message: 'Vote recorded successfully', candidate: updatedCandidate });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 module.exports = router;
