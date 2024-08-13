@@ -40,4 +40,26 @@ router.post('/add-candidate', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
+//route to update a candidate
+router.put('/update-candidate/:id', authenticateToken, isAdmin, async(req,res)=>{
+    try {
+        const {id} = req.params;
+        const updateData = req.body;
+
+//Find the candidate by ID andupdate with the new data
+  const updatedCandidate = await Candidate.findByIdAndUpdate(id, updateData, { new: true})
+  
+  if(!updatedCandidate){
+    return res.status(404).json({ error: 'candidate not found'});
+  }
+
+  res.status(200).json({ message:'Candidate updated successfully', candidate: updatedCandidate});
+    } catch(err){
+        console.error(err);
+            res.status(500).json({ error:'internal server error'})
+    }
+})
+
+
+
 module.exports = router;
