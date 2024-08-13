@@ -117,4 +117,21 @@ router.post('/vote/:candidateId', authenticateToken, async (req, res) => {
     }
 });
 
+
+// Route to get all candidates sorted by voteCount in descending order
+router.get('/candidates', async (req, res) => {
+    try {
+        // Find all candidates and sort them by voteCount in descending order
+        const candidates = await Candidate.find()
+            .sort({ voteCount: -1 }) // Sort by voteCount in descending order
+            .populate('votes.user', 'name email'); // Populate the user field in votes with name and email
+
+        res.status(200).json(candidates);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 module.exports = router;
