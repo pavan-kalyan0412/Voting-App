@@ -100,4 +100,37 @@ router.get('/profile', authenticateToken, async(req,res)=>{
     }
 })
 
+
+router.post('/change-password', authenticateToken, async (req,res)=>{
+    try{
+        const { oldPassword, newPassword} = req.body;
+        const userId = req.user.userId;
+
+        //Find the user by their ID
+        const user = await User.findById(userId);
+        if(!user) {
+            return res.status(404).json({error:'User not found'})
+        }
+
+        //verify the old password
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if(!isMatch){
+            return res.status(400).json({error:'old password is incorrect'})
+        }
+
+        //Hash the new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        //update the passwprd in the database
+        user.password = hashedNewPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 module.exports = router;
