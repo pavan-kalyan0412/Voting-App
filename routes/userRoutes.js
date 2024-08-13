@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('./../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const authenticateToken = require('../authMiddleware');
 
 
 router.post('/signup', async (req, res) => {
@@ -90,6 +91,13 @@ router.post('/login', async (req,res) =>{
     }
 })
 
-
+router.get('/profile', authenticateToken, async(req,res)=>{
+    try{
+        res.status(200).json({message:'access granted to the protected route'})
+    } catch(err){
+        console.log(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
 
 module.exports = router;
